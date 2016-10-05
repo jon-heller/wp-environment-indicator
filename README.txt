@@ -28,8 +28,7 @@ Install through the WordPress dashboard, or
 
 = How do I specify my development environment? =
 
-After activating the plugin, to to Settings->WP Environment Indicator and type the host name of your 
-development environment, i.e. "www.acme.dev"
+After activating the plugin, to to Settings->WP Environment Indicator and type the host name of your development environment, i.e. "www.acme.dev"
 
 == Screenshots ==
 
