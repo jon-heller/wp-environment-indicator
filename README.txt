@@ -4,7 +4,7 @@ Donate link: http://jonheller.net
 Tags: environment, development, indicator, admin, administration, dashboard, production, staging
 Requires at least: 3.0.1
 Tested up to: 4.9.8
-Stable tag: 1.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ After activating the plugin, to to Settings->WP Environment Indicator and type t
 
 == Changelog ==
 
-= 1.1 =
+= 1.0.1 =
 * Fixes to support different hosting environments such as docker
 * Add a selection box for the banner color
 

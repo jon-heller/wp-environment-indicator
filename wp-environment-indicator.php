@@ -16,7 +16,7 @@
  * Plugin Name:       WordPress Environment Indicator
  * Plugin URI:        https://github.com/jon-heller/wp-environment-indicator
  * Description:       Displays an indicator above the admin bar indicating the current environment
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Jon Heller
  * Author URI:        http://jonheller.net
  * License:           GPL-2.0+
