@@ -38,7 +38,9 @@ class Wp_Environment_Indicator_Admin {
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
-	private $version;
+    private $version;
+
+    private $hostName;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -50,8 +52,22 @@ class Wp_Environment_Indicator_Admin {
 	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
-	}
+        $this->version = $version;
+        $this->hostName = $this->get_host_name();
+    }
+
+    private function get_host_name() {
+        $hostName = $_SERVER['HTTP_HOST'];
+        if (empty($hostName)) {
+            $hostName = $_SERVER['SERVER_NAME'];
+        }
+        if (empty($hostName)) {
+            $hostName = $_SERVER['VIRTUAL_HOST'];
+        }
+
+        return $hostName;
+
+    }
 
 	/**
 	 * Register the stylesheets for the admin area.
@@ -59,7 +75,6 @@ class Wp_Environment_Indicator_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
 		/**
 		 * Enqueues the admin style, but only if we're on the dev host
 		 *
@@ -71,8 +86,18 @@ class Wp_Environment_Indicator_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		if ($_SERVER['SERVER_NAME'] == get_option('wpei_dev_hostname_field')) {
-			wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-environment-indicator-admin.css', array(), $this->version, 'all' );
+
+        $devServer = get_option('wpei_dev_hostname_field');
+        $devServer = str_replace("http://", "", $devServer);
+        $devServer = str_replace("https://", "", $devServer);
+
+        if (strpos($devServer, $this->hostName) !== false) {
+            if (get_option('wpei_dev_hostname_color') == "yellow") {
+                wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-environment-indicator-admin-yellow.css', array(), $this->version, 'all' );
+            }
+            else {
+                wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-environment-indicator-admin-red.css', array(), $this->version, 'all' );
+            }
 		}
 
 	}
@@ -85,7 +110,7 @@ class Wp_Environment_Indicator_Admin {
 	public function enqueue_scripts() {
 
 		/**
-		 * 
+		 *
 		 *
 		 * An instance of this class should be passed to the run() function
 		 * defined in Wp_Environment_Indicator_Loader as all of the hooks are defined
@@ -126,7 +151,7 @@ class Wp_Environment_Indicator_Admin {
             ?>
 		</form>
 	</div> <?php
-	}	
+	}
 
 	public function setup_sections() {
 		add_settings_section( 'environment_urls_section', 'Environment Host Names', array( $this, 'section_callback' ), 'wp_environment_indicator_fields' );
@@ -134,16 +159,33 @@ class Wp_Environment_Indicator_Admin {
 
 	public function section_callback( $arguments ) {
 	 	echo '<p>Enter the host name of your development environment below. When visiting the site at this host name, an indicator will be added to the top of the WordPress admin.</p>';
-	 	echo '<em>Current Host</em>: ' . $_SERVER['SERVER_NAME'];
+	 	echo '<em>Current Host</em>: ' . $this->hostName;
 	}
 
 	public function setup_fields() {
-	    add_settings_field( 'wpei_dev_hostname_field', 'Development Host Name', array( $this, 'field_callback' ), 'wp_environment_indicator_fields', 'environment_urls_section' );
+        add_settings_field( 'wpei_dev_hostname_field', 'Development Host Name', array( $this, 'hostname_field' ), 'wp_environment_indicator_fields', 'environment_urls_section' );
 	    register_setting( 'wp_environment_indicator_fields', 'wpei_dev_hostname_field' );
+
+        add_settings_field( 'wpei_dev_hostname_color', 'Development Banner Color', array( $this, 'banner_color' ), 'wp_environment_indicator_fields', 'environment_urls_section' );
+        register_setting( 'wp_environment_indicator_fields', 'wpei_dev_hostname_color' );
 	}
 
-	public function field_callback( $arguments ) {
-		echo '<input name="wpei_dev_hostname_field" id="wpei_dev_hostname_field" type="text" value="' . get_option( 'wpei_dev_hostname_field' ) . '" />';		
-	}
+	public function hostname_field( $arguments ) {
+		echo '<input name="wpei_dev_hostname_field" id="wpei_dev_hostname_field" type="text" value="' . get_option( 'wpei_dev_hostname_field' ) . '" />';
+    }
+
+    public function banner_color( $arguments ) {
+        echo '<select name="wpei_dev_hostname_color" id="wpei_dev_hostname_color">';
+        if (get_option('wpei_dev_hostname_color') == 'red') {
+            echo '<option value="yellow">Yellow</option>
+                  <option value="red" selected>Red</option>';
+        }
+        else {
+            echo '<option value="yellow" selected>Yellow</option>
+                  <option value="red">Red</option>';
+        }
+
+
+    }
 
 }
